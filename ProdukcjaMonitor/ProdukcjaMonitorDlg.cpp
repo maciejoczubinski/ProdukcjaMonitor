@@ -66,6 +66,8 @@ BEGIN_MESSAGE_MAP(CProdukcjaMonitorDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BTN_ODSWIEZ, &CProdukcjaMonitorDlg::OnBnClickedBtnOdswiez)
+	ON_BN_CLICKED(IDC_BTN_USUN, &CProdukcjaMonitorDlg::OnBnClickedBtnUsun)
 END_MESSAGE_MAP()
 
 
@@ -193,3 +195,32 @@ void CProdukcjaMonitorDlg::OdswiezListe()
 	}
 }
 
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnOdswiez()
+{
+	OdswiezListe();
+}
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnUsun()
+{
+	//Sprawdzamy czy zaznaczone
+	int nSelected = m_listZadania.GetNextItem(-1, LVNI_SELECTED);
+	if (nSelected == -1)
+	{
+		MessageBox(_T("Wybierz zadanie do usunięcia!"), _T("Uwaga"), MB_ICONWARNING);
+		return;
+	}
+
+	//Pobieramy id zaznaczonego zadania
+	CString strId = m_listZadania.GetItemText(nSelected, 0);
+	int idZadania = _ttoi(strId);
+
+	//Potwierdzenie
+	if (MessageBox(_T("Czy na pewno chcesz usunąć to zadanie?"), _T("Potwierdzenie"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+	{
+		if (m_db.DeleteZadanie(idZadania))
+			OdswiezListe();
+		else
+			MessageBox(_T("Błąd usuwania zadania!"), _T("Błąd"), MB_ICONERROR);
+	}
+}
