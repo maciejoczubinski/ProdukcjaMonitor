@@ -37,4 +37,5 @@ protected:
 public:
 	afx_msg void OnBnClickedBtnOdswiez();
 	afx_msg void OnBnClickedBtnUsun();
+	afx_msg void OnBnClickedBtnDodaj();
 };

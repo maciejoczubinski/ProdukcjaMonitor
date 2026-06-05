@@ -6,6 +6,7 @@
 #include "framework.h"
 #include "ProdukcjaMonitor.h"
 #include "ProdukcjaMonitorDlg.h"
+#include "CDodajZadanieDlg.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -68,6 +69,7 @@ BEGIN_MESSAGE_MAP(CProdukcjaMonitorDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BTN_ODSWIEZ, &CProdukcjaMonitorDlg::OnBnClickedBtnOdswiez)
 	ON_BN_CLICKED(IDC_BTN_USUN, &CProdukcjaMonitorDlg::OnBnClickedBtnUsun)
+	ON_BN_CLICKED(IDC_BTN_DODAJ, &CProdukcjaMonitorDlg::OnBnClickedBtnDodaj)
 END_MESSAGE_MAP()
 
 
@@ -222,5 +224,14 @@ void CProdukcjaMonitorDlg::OnBnClickedBtnUsun()
 			OdswiezListe();
 		else
 			MessageBox(_T("Błąd usuwania zadania!"), _T("Błąd"), MB_ICONERROR);
+	}
+}
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnDodaj()
+{
+	CDodajZadanieDlg dlg(&m_db, this);
+	if (dlg.DoModal() == IDOK)
+	{
+		OdswiezListe();
 	}
 }
