@@ -54,8 +54,10 @@ END_MESSAGE_MAP()
 
 
 
-CProdukcjaMonitorDlg::CProdukcjaMonitorDlg(CWnd* pParent /*=nullptr*/)
+CProdukcjaMonitorDlg::CProdukcjaMonitorDlg(CWnd* pParent)
 	: CDialogEx(IDD_PRODUKCJAMONITOR_DIALOG, pParent)
+	, m_idZalogowanego(-1)
+	, m_isAdmin(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -140,6 +142,12 @@ BOOL CProdukcjaMonitorDlg::OnInitDialog()
 	// Załaduj dane
 	OdswiezListe();
 	
+	if (!m_isAdmin)
+	{
+		GetDlgItem(IDC_BTN_DODAJ)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_BTN_EDYTUJ)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_BTN_USUN)->ShowWindow(SW_HIDE);
+	}
 
 	return TRUE;  // zwracaj wartość TRUE, dopóki fokus nie zostanie ustawiony na formant
 }
@@ -196,10 +204,13 @@ HCURSOR CProdukcjaMonitorDlg::OnQueryDragIcon()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void CProdukcjaMonitorDlg::OdswiezListe()
 {
-	//czyścimy listę przed załadowaniem
 	m_listZadania.DeleteAllItems();
-	// pobieramy wszystkie zadania z bazy do wektora. wywołujemy metode z Database
-	std::vector<Zadanie> zadania = m_db.GetZadania();
+
+	std::vector<Zadanie> zadania;
+	if (m_isAdmin)
+		zadania = m_db.GetZadania();
+	else
+		zadania = m_db.GetZadaniaOperatora(m_idZalogowanego);
 
 	for (int i = 0; i < (int)zadania.size(); i++)
 	{
@@ -212,7 +223,6 @@ void CProdukcjaMonitorDlg::OdswiezListe()
 		m_listZadania.SetItemText(i, 3, zadania[i].NazwaZlecenia);
 		m_listZadania.SetItemText(i, 4, zadania[i].DataRozpoczecia);
 		m_listZadania.SetItemText(i, 5, zadania[i].Status);
-		//gdzie i to numer wiersza a id numer kolumny
 	}
 }
 

@@ -68,6 +68,8 @@ public:
     // Zadania
     std::vector<Zadanie>   GetZadania();
 
+    std::vector<Zadanie> GetZadaniaOperatora(int idOperatora);
+
     //czy sie udalo
     bool                   AddZadanie(const Zadanie& z);
     bool                   UpdateStatus(int idZadania, const CString& status);

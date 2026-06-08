@@ -253,3 +253,55 @@ bool Database::DeleteZadanie(int idZadania)
         return false;
     }
 }
+
+std::vector<Zadanie> Database::GetZadaniaOperatora(int idOperatora)
+{
+    std::vector<Zadanie> lista;
+    if (!m_db.IsOpen()) return lista;
+
+    try
+    {
+        CRecordset rs(&m_db);
+        CString sql;
+        sql.Format(
+            _T("SELECT z.ID_Zadania, z.ID_Operatora, z.ID_Maszyny, z.ID_Zlecenia, ")
+            _T("z.DataRozpoczecia, z.DataZakonczenia, z.Status, ")
+            _T("o.Imie + ' ' + o.Nazwisko AS NazwaOperatora, ")
+            _T("m.Nazwa AS NazwaMaszyny, ")
+            _T("zl.Nazwa AS NazwaZlecenia ")
+            _T("FROM Zadania z ")
+            _T("JOIN Operatorzy o ON z.ID_Operatora = o.ID_Operatora ")
+            _T("JOIN Maszyny m    ON z.ID_Maszyny   = m.ID_Maszyny ")
+            _T("JOIN Zlecenia zl  ON z.ID_Zlecenia  = zl.ID_Zlecenia ")
+            _T("WHERE z.ID_Operatora = %d"),
+            idOperatora);
+
+        rs.Open(CRecordset::forwardOnly, sql);
+
+        while (!rs.IsEOF())
+        {
+            Zadanie z;
+            CString val;
+
+            rs.GetFieldValue((short)0, val); z.ID_Zadania = _ttoi(val);
+            rs.GetFieldValue((short)1, val); z.ID_Operatora = _ttoi(val);
+            rs.GetFieldValue((short)2, val); z.ID_Maszyny = _ttoi(val);
+            rs.GetFieldValue((short)3, val); z.ID_Zlecenia = _ttoi(val);
+            rs.GetFieldValue((short)4, z.DataRozpoczecia);
+            rs.GetFieldValue((short)5, z.DataZakonczenia);
+            rs.GetFieldValue((short)6, z.Status);
+            rs.GetFieldValue((short)7, z.NazwaOperatora);
+            rs.GetFieldValue((short)8, z.NazwaMaszyny);
+            rs.GetFieldValue((short)9, z.NazwaZlecenia);
+
+            lista.push_back(z);
+            rs.MoveNext();
+        }
+        rs.Close();
+    }
+    catch (CDBException* e)
+    {
+        e->Delete();
+    }
+    return lista;
+}
