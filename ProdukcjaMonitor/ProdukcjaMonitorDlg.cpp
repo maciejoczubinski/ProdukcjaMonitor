@@ -6,6 +6,10 @@
 #include "framework.h"
 #include "ProdukcjaMonitor.h"
 #include "ProdukcjaMonitorDlg.h"
+#include "CDodajZadanieDlg.h"
+#include "CEdytujZadanieDlg.h"
+#include "HashHelper.h"
+#include "CLoginDlg.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -50,8 +54,10 @@ END_MESSAGE_MAP()
 
 
 
-CProdukcjaMonitorDlg::CProdukcjaMonitorDlg(CWnd* pParent /*=nullptr*/)
+CProdukcjaMonitorDlg::CProdukcjaMonitorDlg(CWnd* pParent)
 	: CDialogEx(IDD_PRODUKCJAMONITOR_DIALOG, pParent)
+	, m_idZalogowanego(-1)
+	, m_isAdmin(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -66,6 +72,10 @@ BEGIN_MESSAGE_MAP(CProdukcjaMonitorDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BTN_ODSWIEZ, &CProdukcjaMonitorDlg::OnBnClickedBtnOdswiez)
+	ON_BN_CLICKED(IDC_BTN_USUN, &CProdukcjaMonitorDlg::OnBnClickedBtnUsun)
+	ON_BN_CLICKED(IDC_BTN_DODAJ, &CProdukcjaMonitorDlg::OnBnClickedBtnDodaj)
+	ON_BN_CLICKED(IDC_BTN_EDYTUJ, &CProdukcjaMonitorDlg::OnBnClickedBtnEdytuj)
 END_MESSAGE_MAP()
 
 
@@ -104,7 +114,21 @@ BOOL CProdukcjaMonitorDlg::OnInitDialog()
 	if (!m_db.Connect())
 	{
 		MessageBox(_T("Błąd połączenia z bazą danych!"), _T("Błąd"), MB_ICONERROR);
+		EndDialog(IDCANCEL);
+		return TRUE;
 	}
+
+	// Okno logowania
+	CLoginDlg loginDlg(&m_db, this);
+	if (loginDlg.DoModal() != IDOK)
+	{
+		EndDialog(IDCANCEL);
+		return TRUE;
+	}
+
+	m_idZalogowanego = loginDlg.m_idZalogowanego;
+	m_nazwaZalogowanego = loginDlg.m_nazwaZalogowanego;
+	m_isAdmin = loginDlg.m_isAdmin;
 	
 	// Inicjacja kolumn listy
 	m_listZadania.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
@@ -117,6 +141,13 @@ BOOL CProdukcjaMonitorDlg::OnInitDialog()
 
 	// Załaduj dane
 	OdswiezListe();
+	
+	if (!m_isAdmin)
+	{
+		GetDlgItem(IDC_BTN_DODAJ)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_BTN_EDYTUJ)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_BTN_USUN)->ShowWindow(SW_HIDE);
+	}
 
 	return TRUE;  // zwracaj wartość TRUE, dopóki fokus nie zostanie ustawiony na formant
 }
@@ -173,10 +204,13 @@ HCURSOR CProdukcjaMonitorDlg::OnQueryDragIcon()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void CProdukcjaMonitorDlg::OdswiezListe()
 {
-	//czyścimy listę przed załadowaniem
 	m_listZadania.DeleteAllItems();
-	// pobieramy wszystkie zadania z bazy do wektora. wywołujemy metode z Database
-	std::vector<Zadanie> zadania = m_db.GetZadania();
+
+	std::vector<Zadanie> zadania;
+	if (m_isAdmin)
+		zadania = m_db.GetZadania();
+	else
+		zadania = m_db.GetZadaniaOperatora(m_idZalogowanego);
 
 	for (int i = 0; i < (int)zadania.size(); i++)
 	{
@@ -189,7 +223,79 @@ void CProdukcjaMonitorDlg::OdswiezListe()
 		m_listZadania.SetItemText(i, 3, zadania[i].NazwaZlecenia);
 		m_listZadania.SetItemText(i, 4, zadania[i].DataRozpoczecia);
 		m_listZadania.SetItemText(i, 5, zadania[i].Status);
-		//gdzie i to numer wiersza a id numer kolumny
 	}
 }
 
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnOdswiez()
+{
+	OdswiezListe();
+}
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnUsun()
+{
+	//Sprawdzamy czy zaznaczone
+	int nSelected = m_listZadania.GetNextItem(-1, LVNI_SELECTED);
+	if (nSelected == -1)
+	{
+		MessageBox(_T("Wybierz zadanie do usunięcia!"), _T("Uwaga"), MB_ICONWARNING);
+		return;
+	}
+
+	//Pobieramy id zaznaczonego zadania
+	CString strId = m_listZadania.GetItemText(nSelected, 0);
+	int idZadania = _ttoi(strId);
+
+	//Potwierdzenie
+	if (MessageBox(_T("Czy na pewno chcesz usunąć to zadanie?"), _T("Potwierdzenie"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+	{
+		if (m_db.DeleteZadanie(idZadania))
+			OdswiezListe();
+		else
+			MessageBox(_T("Błąd usuwania zadania!"), _T("Błąd"), MB_ICONERROR);
+	}
+}
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnDodaj()
+{
+	CDodajZadanieDlg dlg(&m_db, this);
+	if (dlg.DoModal() == IDOK)
+	{
+		OdswiezListe();
+	}
+}
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnEdytuj()
+{
+	int nSelected = m_listZadania.GetNextItem(-1, LVNI_SELECTED);
+	if (nSelected == -1)
+	{
+		MessageBox(_T("Wybierz zadanie do edycji!"), _T("Uwaga"), MB_ICONWARNING);
+		return;
+	}
+
+	// Pobierz ID zaznaczonego zadania
+	CString strId = m_listZadania.GetItemText(nSelected, 0);
+	int idZadania = _ttoi(strId);
+
+	// Znajdź zadanie w bazie
+	std::vector<Zadanie> zadania = m_db.GetZadania();
+	Zadanie wybraneZadanie;
+	bool znaleziono = false;
+
+	for (auto& z : zadania)
+	{
+		if (z.ID_Zadania == idZadania)
+		{
+			wybraneZadanie = z;
+			znaleziono = true;
+			break;
+		}
+	}
+
+	if (!znaleziono) return;
+
+	CEdytujZadanieDlg dlg(&m_db, wybraneZadanie, this);
+	if (dlg.DoModal() == IDOK)
+		OdswiezListe();
+}

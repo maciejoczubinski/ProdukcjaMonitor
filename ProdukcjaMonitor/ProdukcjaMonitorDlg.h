@@ -34,4 +34,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	CListCtrl m_listZadania;
 	void OdswiezListe();
+	int     m_idZalogowanego;
+	CString m_nazwaZalogowanego;
+	bool    m_isAdmin;
+public:
+	afx_msg void OnBnClickedBtnOdswiez();
+	afx_msg void OnBnClickedBtnUsun();
+	afx_msg void OnBnClickedBtnDodaj();
+	afx_msg void OnBnClickedBtnEdytuj();
 };
