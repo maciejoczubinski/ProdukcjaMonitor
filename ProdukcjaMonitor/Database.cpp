@@ -305,3 +305,45 @@ std::vector<Zadanie> Database::GetZadaniaOperatora(int idOperatora)
     }
     return lista;
 }
+
+std::vector<Maszyna> Database::GetMaszynyOperatora(int idOperatora)
+{
+    std::vector<Maszyna> lista;
+    if (!m_db.IsOpen()) return lista;
+
+    try
+    {
+        CRecordset rs(&m_db);
+        CString sql;
+        sql.Format(
+            _T("SELECT m.ID_Maszyny, m.Nazwa, m.Typ, m.NrSeryjny, m.Lokalizacja ")
+            _T("FROM Maszyny m ")
+            _T("JOIN Kwalifikacje k ON m.ID_Maszyny = k.ID_Maszyny ")
+            _T("WHERE k.ID_Operatora = %d"),
+            idOperatora);
+
+        rs.Open(CRecordset::forwardOnly, sql);
+
+        while (!rs.IsEOF())
+        {
+            Maszyna m;
+            CString val;
+
+            rs.GetFieldValue((short)0, val); m.ID_Maszyny = _ttoi(val);
+            rs.GetFieldValue((short)1, m.Nazwa);
+            rs.GetFieldValue((short)2, m.Typ);
+            rs.GetFieldValue((short)3, m.NrSeryjny);
+            rs.GetFieldValue((short)4, m.Lokalizacja);
+
+            lista.push_back(m);
+            rs.MoveNext();
+        }
+        rs.Close();
+    }
+    catch (CDBException* e)
+    {
+        e->Delete();
+    }
+    return lista;
+}
+

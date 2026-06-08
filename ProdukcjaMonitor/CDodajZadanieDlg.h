@@ -13,5 +13,6 @@ protected:
     virtual void DoDataExchange(CDataExchange* pDX);
     virtual void OnBtnZapisz();
     afx_msg void OnBnClickedBtnZapisz();
+    afx_msg void OnCbnSelchangeComboOperator();
     DECLARE_MESSAGE_MAP()
 };

@@ -70,6 +70,8 @@ public:
 
     std::vector<Zadanie> GetZadaniaOperatora(int idOperatora);
 
+    std::vector<Maszyna> GetMaszynyOperatora(int idOperatora);
+
     //czy sie udalo
     bool                   AddZadanie(const Zadanie& z);
     bool                   UpdateStatus(int idZadania, const CString& status);

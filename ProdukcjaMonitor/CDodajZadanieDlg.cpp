@@ -49,6 +49,25 @@ void CDodajZadanieDlg::OnBnClickedBtnZapisz()
     OnBtnZapisz();
 }
 
+void CDodajZadanieDlg::OnCbnSelchangeComboOperator()
+{
+    int sel = m_comboOperator.GetCurSel();
+    if (sel == CB_ERR) return;
+
+    int idOperatora = (int)m_comboOperator.GetItemData(sel);
+
+    // Wyczyść i odśwież listę maszyn
+    m_comboMaszyna.ResetContent();
+
+    std::vector<Maszyna> maszyny = m_pDb->GetMaszynyOperatora(idOperatora);
+    for (auto& m : maszyny)
+    {
+        int idx = m_comboMaszyna.AddString(m.Nazwa);
+        m_comboMaszyna.SetItemData(idx, m.ID_Maszyny);
+    }
+}
+
 BEGIN_MESSAGE_MAP(CDodajZadanieDlg, CZadanieDlgBase)
     ON_BN_CLICKED(IDC_BTN_ZAPISZ, &CDodajZadanieDlg::OnBnClickedBtnZapisz)
+    ON_CBN_SELCHANGE(IDC_COMBO_OPERATOR, &CDodajZadanieDlg::OnCbnSelchangeComboOperator)
 END_MESSAGE_MAP()
