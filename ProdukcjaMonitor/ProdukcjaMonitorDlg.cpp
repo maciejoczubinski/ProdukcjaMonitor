@@ -6,6 +6,8 @@
 #include "framework.h"
 #include "ProdukcjaMonitor.h"
 #include "ProdukcjaMonitorDlg.h"
+#include "CDodajZadanieDlg.h"
+#include "CEdytujZadanieDlg.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -66,6 +68,10 @@ BEGIN_MESSAGE_MAP(CProdukcjaMonitorDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BTN_ODSWIEZ, &CProdukcjaMonitorDlg::OnBnClickedBtnOdswiez)
+	ON_BN_CLICKED(IDC_BTN_USUN, &CProdukcjaMonitorDlg::OnBnClickedBtnUsun)
+	ON_BN_CLICKED(IDC_BTN_DODAJ, &CProdukcjaMonitorDlg::OnBnClickedBtnDodaj)
+	ON_BN_CLICKED(IDC_BTN_EDYTUJ, &CProdukcjaMonitorDlg::OnBnClickedBtnEdytuj)
 END_MESSAGE_MAP()
 
 
@@ -193,3 +199,76 @@ void CProdukcjaMonitorDlg::OdswiezListe()
 	}
 }
 
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnOdswiez()
+{
+	OdswiezListe();
+}
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnUsun()
+{
+	//Sprawdzamy czy zaznaczone
+	int nSelected = m_listZadania.GetNextItem(-1, LVNI_SELECTED);
+	if (nSelected == -1)
+	{
+		MessageBox(_T("Wybierz zadanie do usunięcia!"), _T("Uwaga"), MB_ICONWARNING);
+		return;
+	}
+
+	//Pobieramy id zaznaczonego zadania
+	CString strId = m_listZadania.GetItemText(nSelected, 0);
+	int idZadania = _ttoi(strId);
+
+	//Potwierdzenie
+	if (MessageBox(_T("Czy na pewno chcesz usunąć to zadanie?"), _T("Potwierdzenie"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+	{
+		if (m_db.DeleteZadanie(idZadania))
+			OdswiezListe();
+		else
+			MessageBox(_T("Błąd usuwania zadania!"), _T("Błąd"), MB_ICONERROR);
+	}
+}
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnDodaj()
+{
+	CDodajZadanieDlg dlg(&m_db, this);
+	if (dlg.DoModal() == IDOK)
+	{
+		OdswiezListe();
+	}
+}
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnEdytuj()
+{
+	int nSelected = m_listZadania.GetNextItem(-1, LVNI_SELECTED);
+	if (nSelected == -1)
+	{
+		MessageBox(_T("Wybierz zadanie do edycji!"), _T("Uwaga"), MB_ICONWARNING);
+		return;
+	}
+
+	// Pobierz ID zaznaczonego zadania
+	CString strId = m_listZadania.GetItemText(nSelected, 0);
+	int idZadania = _ttoi(strId);
+
+	// Znajdź zadanie w bazie
+	std::vector<Zadanie> zadania = m_db.GetZadania();
+	Zadanie wybraneZadanie;
+	bool znaleziono = false;
+
+	for (auto& z : zadania)
+	{
+		if (z.ID_Zadania == idZadania)
+		{
+			wybraneZadanie = z;
+			znaleziono = true;
+			break;
+		}
+	}
+
+	if (!znaleziono) return;
+
+	CEdytujZadanieDlg dlg(&m_db, wybraneZadanie, this);
+	if (dlg.DoModal() == IDOK)
+		OdswiezListe();
+}

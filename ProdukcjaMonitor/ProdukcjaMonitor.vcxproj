@@ -183,6 +183,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CDodajZadanieDlg.h" />
+    <ClInclude Include="CEdytujZadanieDlg.h" />
+    <ClInclude Include="CZadanieDlgBase.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
@@ -192,6 +195,9 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CDodajZadanieDlg.cpp" />
+    <ClCompile Include="CEdytujZadanieDlg.cpp" />
+    <ClCompile Include="CZadanieDlgBase.cpp" />
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
