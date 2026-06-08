@@ -7,6 +7,7 @@
 #include "ProdukcjaMonitor.h"
 #include "ProdukcjaMonitorDlg.h"
 #include "CDodajZadanieDlg.h"
+#include "CEdytujZadanieDlg.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -70,6 +71,7 @@ BEGIN_MESSAGE_MAP(CProdukcjaMonitorDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_ODSWIEZ, &CProdukcjaMonitorDlg::OnBnClickedBtnOdswiez)
 	ON_BN_CLICKED(IDC_BTN_USUN, &CProdukcjaMonitorDlg::OnBnClickedBtnUsun)
 	ON_BN_CLICKED(IDC_BTN_DODAJ, &CProdukcjaMonitorDlg::OnBnClickedBtnDodaj)
+	ON_BN_CLICKED(IDC_BTN_EDYTUJ, &CProdukcjaMonitorDlg::OnBnClickedBtnEdytuj)
 END_MESSAGE_MAP()
 
 
@@ -234,4 +236,39 @@ void CProdukcjaMonitorDlg::OnBnClickedBtnDodaj()
 	{
 		OdswiezListe();
 	}
+}
+
+void CProdukcjaMonitorDlg::OnBnClickedBtnEdytuj()
+{
+	int nSelected = m_listZadania.GetNextItem(-1, LVNI_SELECTED);
+	if (nSelected == -1)
+	{
+		MessageBox(_T("Wybierz zadanie do edycji!"), _T("Uwaga"), MB_ICONWARNING);
+		return;
+	}
+
+	// Pobierz ID zaznaczonego zadania
+	CString strId = m_listZadania.GetItemText(nSelected, 0);
+	int idZadania = _ttoi(strId);
+
+	// Znajdź zadanie w bazie
+	std::vector<Zadanie> zadania = m_db.GetZadania();
+	Zadanie wybraneZadanie;
+	bool znaleziono = false;
+
+	for (auto& z : zadania)
+	{
+		if (z.ID_Zadania == idZadania)
+		{
+			wybraneZadanie = z;
+			znaleziono = true;
+			break;
+		}
+	}
+
+	if (!znaleziono) return;
+
+	CEdytujZadanieDlg dlg(&m_db, wybraneZadanie, this);
+	if (dlg.DoModal() == IDOK)
+		OdswiezListe();
 }
