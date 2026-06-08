@@ -8,7 +8,8 @@ CREATE TABLE Operatorzy (
     Imie         VARCHAR(255) NOT NULL,
     Nazwisko     VARCHAR(255) NOT NULL,
     Stanowisko   VARCHAR(255),
-    NrTelefonu   VARCHAR(20)
+    NrTelefonu   VARCHAR(20),
+    Haslo        VARCHAR(64)
 );
 
 CREATE TABLE Maszyny (

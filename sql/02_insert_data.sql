@@ -1,9 +1,9 @@
 USE system_monitorowania;
 
 -- Operatorzy
-INSERT INTO Operatorzy (Imie, Nazwisko, Stanowisko, NrTelefonu) VALUES ('Jan', 'Kowalski', 'Operator CNC', '600100200');
-INSERT INTO Operatorzy (Imie, Nazwisko, Stanowisko, NrTelefonu) VALUES ('Anna', 'Nowak', 'Spawacz', '600100201');
-INSERT INTO Operatorzy (Imie, Nazwisko, Stanowisko, NrTelefonu) VALUES ('Piotr', 'Wiśniewski', 'Tokarz', '600100202');
+INSERT INTO Operatorzy (Imie, Nazwisko, Stanowisko, NrTelefonu, Haslo) VALUES ('Jan', 'Kowalski', 'Operator CNC', '600100200', 'haslo123');
+INSERT INTO Operatorzy (Imie, Nazwisko, Stanowisko, NrTelefonu, Haslo) VALUES ('Anna', 'Nowak', 'Spawacz', '600100201', 'haslo123');
+INSERT INTO Operatorzy (Imie, Nazwisko, Stanowisko, NrTelefonu, Haslo) VALUES ('Piotr', 'Wiśniewski', 'Tokarz', '600100202', 'haslo123');
 
 -- Maszyny
 INSERT INTO Maszyny (Nazwa, Typ, NrSeryjny, Lokalizacja) VALUES ('Tokarka TUR-50', 'Tokarka', 'SN-001', 'Hala A');
@@ -26,3 +26,4 @@ INSERT INTO Kwalifikacje (ID_Operatora, ID_Maszyny) VALUES (1, 3);
 INSERT INTO Kwalifikacje (ID_Operatora, ID_Maszyny) VALUES (2, 2);
 INSERT INTO Kwalifikacje (ID_Operatora, ID_Maszyny) VALUES (3, 1);
 INSERT INTO Kwalifikacje (ID_Operatora, ID_Maszyny) VALUES (3, 3);
+

@@ -185,9 +185,11 @@
   <ItemGroup>
     <ClInclude Include="CDodajZadanieDlg.h" />
     <ClInclude Include="CEdytujZadanieDlg.h" />
+    <ClInclude Include="CLoginDlg.h" />
     <ClInclude Include="CZadanieDlgBase.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="HashHelper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProdukcjaMonitor.h" />
     <ClInclude Include="ProdukcjaMonitorDlg.h" />
@@ -197,6 +199,7 @@
   <ItemGroup>
     <ClCompile Include="CDodajZadanieDlg.cpp" />
     <ClCompile Include="CEdytujZadanieDlg.cpp" />
+    <ClCompile Include="CLoginDlg.cpp" />
     <ClCompile Include="CZadanieDlgBase.cpp" />
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="pch.cpp">

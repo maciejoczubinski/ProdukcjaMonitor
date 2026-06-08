@@ -52,7 +52,7 @@ std::vector<Operator> Database::GetOperatorzy()
     {
         CRecordset rs(&m_db);
         rs.Open(CRecordset::forwardOnly,
-            _T("SELECT ID_Operatora, Imie, Nazwisko, Stanowisko, NrTelefonu FROM Operatorzy"));
+            _T("SELECT ID_Operatora, Imie, Nazwisko, Stanowisko, NrTelefonu, Haslo FROM Operatorzy"));
 
         while (!rs.IsEOF())
         {
@@ -64,6 +64,7 @@ std::vector<Operator> Database::GetOperatorzy()
             rs.GetFieldValue((short)2, op.Nazwisko);
             rs.GetFieldValue((short)3, op.Stanowisko);
             rs.GetFieldValue((short)4, op.NrTelefonu);
+            rs.GetFieldValue((short)5, op.Haslo);
 
             lista.push_back(op);
             rs.MoveNext();

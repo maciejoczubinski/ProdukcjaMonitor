@@ -8,6 +8,8 @@
 #include "ProdukcjaMonitorDlg.h"
 #include "CDodajZadanieDlg.h"
 #include "CEdytujZadanieDlg.h"
+#include "HashHelper.h"
+#include "CLoginDlg.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -110,7 +112,21 @@ BOOL CProdukcjaMonitorDlg::OnInitDialog()
 	if (!m_db.Connect())
 	{
 		MessageBox(_T("Błąd połączenia z bazą danych!"), _T("Błąd"), MB_ICONERROR);
+		EndDialog(IDCANCEL);
+		return TRUE;
 	}
+
+	// Okno logowania
+	CLoginDlg loginDlg(&m_db, this);
+	if (loginDlg.DoModal() != IDOK)
+	{
+		EndDialog(IDCANCEL);
+		return TRUE;
+	}
+
+	m_idZalogowanego = loginDlg.m_idZalogowanego;
+	m_nazwaZalogowanego = loginDlg.m_nazwaZalogowanego;
+	m_isAdmin = loginDlg.m_isAdmin;
 	
 	// Inicjacja kolumn listy
 	m_listZadania.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
@@ -123,6 +139,7 @@ BOOL CProdukcjaMonitorDlg::OnInitDialog()
 
 	// Załaduj dane
 	OdswiezListe();
+	
 
 	return TRUE;  // zwracaj wartość TRUE, dopóki fokus nie zostanie ustawiony na formant
 }
