@@ -6,11 +6,12 @@
 // Struktury danych odpowiadaj¹ce tabelom w bazie
 struct Operator
 {
-    int    ID_Operatora;
+    int     ID_Operatora;
     CString Imie;
     CString Nazwisko;
     CString Stanowisko;
     CString NrTelefonu;
+    CString Haslo;
 };
 
 struct Maszyna
@@ -66,6 +67,8 @@ public:
 
     // Zadania
     std::vector<Zadanie>   GetZadania();
+
+    std::vector<Zadanie> GetZadaniaOperatora(int idOperatora);
 
     //czy sie udalo
     bool                   AddZadanie(const Zadanie& z);
